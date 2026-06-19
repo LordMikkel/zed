@@ -5,7 +5,8 @@ extern crate self as util;
 pub mod archive;
 #[cfg(not(target_family = "wasm"))]
 pub mod command;
-#[cfg(not(target_family = "wasm"))]
+pub mod disambiguate;
+pub mod fd;
 pub mod fs;
 #[cfg(not(target_family = "wasm"))]
 pub mod process;
@@ -16,7 +17,6 @@ pub mod shell_builder;
 #[cfg(not(target_family = "wasm"))]
 pub mod shell_env;
 
-pub mod disambiguate;
 pub mod markdown;
 pub mod path_list;
 pub mod paths;

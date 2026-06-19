@@ -560,6 +560,7 @@ impl WaylandWindowState {
         parent: Option<WaylandWindowStatePtr>,
     ) -> anyhow::Result<Self> {
         let renderer = {
+            let _fd_guard = util::fd::CloseOnExecGuard::new();
             let raw_window = RawWindow {
                 window: surface.id().as_ptr().cast::<c_void>(),
                 display: surface
@@ -1948,7 +1949,11 @@ impl PlatformWindow for WaylandWindow {
                     .display_ptr()
                     .cast::<std::ffi::c_void>(),
             };
-            match state.renderer.recover(&raw_window) {
+            let recovery = {
+                let _fd_guard = util::fd::CloseOnExecGuard::new();
+                state.renderer.recover(&raw_window)
+            };
+            match recovery {
                 Ok(()) => {}
                 Err(err) => {
                     log::warn!("GPU recovery failed, will retry on next frame: {err}");

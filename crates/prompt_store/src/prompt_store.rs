@@ -218,12 +218,16 @@ impl PromptStore {
         cx.background_spawn(async move {
             std::fs::create_dir_all(&db_path)?;
 
-            let db_env = unsafe {
-                heed::EnvOpenOptions::new()
-                    .map_size(1024 * 1024 * 1024) // 1GB
-                    .max_dbs(4) // Metadata and bodies (possibly v1 of both as well)
-                    .open(db_path)?
-            };
+            let db_env = {
+                let _fd_guard = util::fd::CloseOnExecGuard::new();
+                // SAFETY: This is the single application-owned prompt-store environment.
+                unsafe {
+                    heed::EnvOpenOptions::new()
+                        .map_size(1024 * 1024 * 1024) // 1GB
+                        .max_dbs(4) // Metadata and bodies (possibly v1 of both as well)
+                        .open(&db_path)
+                }
+            }?;
 
             let mut txn = db_env.write_txn()?;
             let metadata = db_env.create_database(&mut txn, Some("metadata.v2"))?;
