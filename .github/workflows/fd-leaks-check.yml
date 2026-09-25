@@ -23,4 +23,4 @@ jobs:
         run: cargo clippy -p util -p terminal --all-targets -- --deny warnings
       - name: Test fd sweep
         if: runner.os == 'Linux'
-        run: cargo test -p util --lib fd::
+        run: cargo test -p util --lib "fd::"
