@@ -7624,7 +7624,6 @@ dependencies = [
  "smol",
  "strum 0.28.0",
  "url",
- "util",
  "uuid",
  "wayland-backend",
  "wayland-client",

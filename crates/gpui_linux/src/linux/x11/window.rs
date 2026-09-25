@@ -749,7 +749,6 @@ impl X11WindowState {
             xcb_flush(xcb);
 
             let mut renderer = {
-                let _fd_guard = util::fd::CloseOnExecGuard::new();
                 let raw_window = RawWindow {
                     connection: as_raw_xcb_connection::AsRawXcbConnection::as_raw_xcb_connection(
                         xcb,
@@ -1753,11 +1752,7 @@ impl PlatformWindow for X11Window {
                 window_id: self.0.x_window,
                 visual_id: inner.visual_id,
             };
-            let recovery = {
-                let _fd_guard = util::fd::CloseOnExecGuard::new();
-                inner.renderer.recover(&raw_window)
-            };
-            match recovery {
+            match inner.renderer.recover(&raw_window) {
                 Ok(()) => {}
                 Err(err) => {
                     log::warn!("GPU recovery failed, will retry on next frame: {err}");

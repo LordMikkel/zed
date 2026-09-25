@@ -1269,7 +1269,9 @@ impl TerminalBuilder {
                     shell_kind.tty_escape_args(),
                 );
 
-                // Ensure no leaked fds from GPU/compositor/Wayland are inherited by the child shell.
+                // Some libraries (LMDB, GPU drivers) open fds without `O_CLOEXEC`, and
+                // alacritty builds the shell `Command` itself, so we can't close them in
+                // the child. Mark them close-on-exec in our process instead.
                 #[cfg(target_os = "linux")]
                 if let Err(error) = util::fd::mark_open_fds_close_on_exec() {
                     log::debug!(
