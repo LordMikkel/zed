@@ -1,0 +1,26 @@
+name: fd leaks check
+
+on:
+  push:
+    branches: [fd-leaks-ci]
+  workflow_dispatch:
+
+jobs:
+  check:
+    if: github.repository == 'LordMikkel/zed'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: ./script/linux
+      - uses: Swatinem/rust-cache@v2
+      - name: Clippy
+        run: cargo clippy -p util -p terminal --all-targets -- --deny warnings
+      - name: Test fd sweep
+        if: runner.os == 'Linux'
+        run: cargo test -p util --lib fd::
